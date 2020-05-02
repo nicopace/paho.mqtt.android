@@ -36,6 +36,7 @@ dependencies {
     compile "com.android.support:appcompat-v7:${rootProject.ext.supportLibVersion}"
     compile "com.android.support:recyclerview-v7:${rootProject.ext.supportLibVersion}"
     compile "org.eclipse.paho:org.eclipse.paho.client.mqttv3:${rootProject.ext.clientVersion}"
+    compile "com.android.support:support-v4:${rootProject.ext.supportLibVersion}"
     compile (project(':org.eclipse.paho.android.service')){
         //exclude module: "org.eclipse.paho.client.mqttv3"
         transitive=true
@@ -47,8 +48,3 @@ task publishAPK(type: Copy) {
     into '/shared/technology/paho/Android/' + rootProject.ext.sampleVersion + '/debug/';
 }
 
-
-configurations.compile.exclude module: 'org.eclipse.paho.client.mqttv3'
-task debug << {
-    configurations.compile.each { println it}
-}
