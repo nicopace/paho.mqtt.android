@@ -13,9 +13,17 @@
  */
 package paho.mqtt.java.example;
 
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
+import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -41,13 +49,13 @@ public class PahoExampleActivity extends AppCompatActivity{
 
     MqttAndroidClient mqttAndroidClient;
 
-    final String serverUri = "tcp://mqtt.eclipse.org:1883";
+    //final String serverUri = "tcp://mqtt.eclipse.org:1883";
+    final String serverUri = "tcp://10.13.0.1:1883";
 
     String clientId = "ExampleAndroidClient";
     final String subscriptionTopic = "exampleAndroidTopic";
     final String publishTopic = "exampleAndroidPublishTopic";
     final String publishMessage = "Hello World!";
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -182,12 +190,33 @@ public class PahoExampleActivity extends AppCompatActivity{
                 }
             });
 
+            final Context ref = this;
+
             // THIS DOES NOT WORK!
             mqttAndroidClient.subscribe(subscriptionTopic, 2, new IMqttMessageListener() {
                 @Override
                 public void messageArrived(String topic, MqttMessage message) throws Exception {
                     // message Arrived!
-                    System.out.println("Message: " + topic + " : " + new String(message.getPayload()));
+                    String msg = new String(message.getPayload());
+                    System.out.println("Message: " + topic + " : " + msg);
+
+                    NotificationCompat.Builder mBuilder =
+                            new NotificationCompat.Builder(ref)
+                                    .setSmallIcon(R.drawable.notification_icon)
+                                    .setContentTitle("My notification")
+                                    .setContentText(msg);
+
+                    // Gets an instance of the NotificationManager service//
+                    NotificationManager mNotificationManager =
+                            (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+                    Intent notificationIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://10.13.0.1/app/#"+msg));
+
+                    PendingIntent contentIntent = PendingIntent.getActivity(ref, 0, notificationIntent, 0);
+
+                    mBuilder.setContentIntent(contentIntent);
+                    mNotificationManager.notify(001, mBuilder.build());
+
                 }
             });
 
